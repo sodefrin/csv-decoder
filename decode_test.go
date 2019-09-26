@@ -8,7 +8,8 @@ import (
 
 func TestDecode(t *testing.T) {
 	type A struct {
-		Test string
+		Test  string
+		Test2 *string
 	}
 
 	t.Run("invalid not slice", func(t *testing.T) {
@@ -43,7 +44,7 @@ func TestDecode(t *testing.T) {
 	})
 
 	t.Run("success slice pointer", func(t *testing.T) {
-		data := []byte("Test\na\n")
+		data := []byte("Test,Test2\na,b\n")
 		out := []*A{}
 		r := bytes.NewReader(data)
 		if err := Decode(&out, r); err != nil {
@@ -51,6 +52,9 @@ func TestDecode(t *testing.T) {
 		}
 
 		if out[0].Test != "a" {
+			t.Fatalf("out.Test must be a")
+		}
+		if *out[0].Test2 != "b" {
 			t.Fatalf("out.Test must be a")
 		}
 	})
