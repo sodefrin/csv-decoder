@@ -79,7 +79,7 @@ func decodeStruct(v reflect.Value, values map[string]string) error {
 		value := v.FieldByName(name)
 		str, ok := values[name]
 		if !ok || str == "" {
-			break
+			continue
 		}
 
 		if err := parseField(value, str); err != nil {
