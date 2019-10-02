@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strconv"
 	"time"
+
+	"cloud.google.com/go/civil"
 )
 
 var (
@@ -20,6 +22,7 @@ func Decode(out interface{}, r io.Reader) error {
 	if v.Kind() != reflect.Ptr {
 		return fmt.Errorf("%w; out must be pointer", ErrInvalidInterface)
 	}
+
 	v = v.Elem()
 	if v.Kind() != reflect.Slice {
 		return fmt.Errorf("%w; out must be slice", ErrInvalidInterface)
@@ -75,8 +78,12 @@ func decode(v reflect.Value, column, values []string) error {
 
 func decodeStruct(v reflect.Value, values map[string]string) error {
 	for i := 0; i < v.NumField(); i++ {
-		name := v.Type().Field(i).Name
-		value := v.FieldByName(name)
+		var name string
+		name = v.Type().Field(i).Tag.Get("json")
+		if name == "" {
+			name = v.Type().Field(i).Name
+		}
+		value := v.Field(i)
 		str, ok := values[name]
 		if !ok || str == "" {
 			break
@@ -125,6 +132,12 @@ func parseField(value reflect.Value, str string) error {
 		value.SetString(str)
 	case time.Time:
 		ret, err := time.Parse(time.RFC3339, str)
+		if err != nil {
+			return err
+		}
+		value.Set(reflect.ValueOf(ret))
+	case civil.Date:
+		ret, err := civil.ParseDate(str)
 		if err != nil {
 			return err
 		}
