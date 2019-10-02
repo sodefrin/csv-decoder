@@ -78,14 +78,10 @@ func decode(v reflect.Value, column, values []string) error {
 
 func decodeStruct(v reflect.Value, values map[string]string) error {
 	for i := 0; i < v.NumField(); i++ {
-		var name string
-		name = v.Type().Field(i).Tag.Get("json")
-		if name == "" {
-			name = v.Type().Field(i).Name
-		}
 		value := v.Field(i)
-		str, ok := values[name]
-		if !ok || str == "" {
+		str := getStrFromMap(v.Type().Field(i), values)
+
+		if str == "" {
 			continue
 		}
 
@@ -95,6 +91,19 @@ func decodeStruct(v reflect.Value, values map[string]string) error {
 	}
 
 	return nil
+}
+
+func getStrFromMap(field reflect.StructField, values map[string]string) string {
+	str, ok := values[field.Tag.Get("json")]
+	if ok && str != "" {
+		return str
+	}
+
+	str, ok = values[field.Name]
+	if ok && str != "" {
+		return str
+	}
+	return ""
 }
 
 func parseField(value reflect.Value, str string) error {
