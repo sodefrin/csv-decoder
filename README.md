@@ -34,9 +34,8 @@ type sample struct {
 func main() {
 	out := []*sample{}
 
-	r := strings.NewReader("Test1,Test2\na,10\n")
-
-	if err := csvdecoder.Decode(&out, r); err != nil {
+	// read "Test1,Test2\na,10\n" from filepath and parse
+	if err := csvdecoder.Decode("filepath", &out); err != nil {
 		log.Fatal(err)
 	}
 
