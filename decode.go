@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"reflect"
 	"strconv"
 	"time"
@@ -17,7 +18,12 @@ var (
 	ErrParse            = errors.New("parse error")
 )
 
-func Decode(out interface{}, r io.Reader) error {
+func Decode(filepath string, out interface{}) error {
+	r, err := os.Open(filepath)
+	if err != nil {
+		return err
+	}
+
 	v := reflect.ValueOf(out)
 	if v.Kind() != reflect.Ptr {
 		return fmt.Errorf("%w; out must be pointer", ErrInvalidInterface)

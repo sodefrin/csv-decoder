@@ -1,7 +1,6 @@
 package csvdecoder
 
 import (
-	"bytes"
 	"errors"
 	"testing"
 
@@ -16,41 +15,33 @@ func TestDecode(t *testing.T) {
 	}
 
 	t.Run("invalid not slice", func(t *testing.T) {
-		data := []byte("")
 		out := A{}
-		r := bytes.NewReader(data)
-		if err := Decode(out, r); !errors.Is(err, ErrInvalidInterface) {
+		if err := Decode("testdata/empty.csv", &out); !errors.Is(err, ErrInvalidInterface) {
 			t.Fatalf("want err: %s, but have: %s", ErrInvalidInterface, err)
 		}
 	})
 
 	t.Run("invliad not pointer", func(t *testing.T) {
-		data := []byte("")
 		out := []A{}
-		r := bytes.NewReader(data)
-		if err := Decode(out, r); !errors.Is(err, ErrInvalidInterface) {
+		if err := Decode("testdata/empty.csv", out); !errors.Is(err, ErrInvalidInterface) {
 			t.Fatalf("want err: %s, but have: %s", ErrInvalidInterface, err)
 		}
 	})
 
 	t.Run("success slice struct", func(t *testing.T) {
-		data := []byte("Test\na\n")
 		out := []A{}
-		r := bytes.NewReader(data)
-		if err := Decode(&out, r); err != nil {
+		if err := Decode("testdata/test.csv", &out); err != nil {
 			t.Fatal(err)
 		}
 
 		if out[0].Test != "a" {
-			t.Fatalf("out.Test must be a")
+			t.Fatalf("out.Test must be a but have %s", out[0].Test)
 		}
 	})
 
 	t.Run("success slice pointer", func(t *testing.T) {
-		data := []byte("Test,Test2,test3\na,b,2019-09-02\n")
 		out := []*A{}
-		r := bytes.NewReader(data)
-		if err := Decode(&out, r); err != nil {
+		if err := Decode("testdata/test2.csv", &out); err != nil {
 			t.Fatal(err)
 		}
 
